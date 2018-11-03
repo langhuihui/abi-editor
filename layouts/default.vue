@@ -31,6 +31,9 @@ export default {
       selectedName: ""
     };
   },
+  mounted() {
+    this.selectFile("default");
+  },
   methods: {
     createFile(value) {
       this.creating = false;
