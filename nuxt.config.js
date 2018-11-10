@@ -1,7 +1,7 @@
 import pkg from "./package.json";
-
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin'
 export default {
-    mode: "universal",
+    mode: "spa",
 
     /*
      ** Headers of the page
@@ -52,6 +52,13 @@ export default {
         /*
          ** You can extend webpack config here
          */
-        extend(config, ctx) {}
+        extend(config, ctx) {
+            config.plugins.push(
+                new MonacoWebpackPlugin()
+            )
+        }
+    },
+    generate: {
+        subFolders: false
     }
 };

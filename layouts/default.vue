@@ -6,47 +6,60 @@
         mu-list-item-action 
           mu-button(@click='creating=true')
             mu-icon(value="add")
-            | 新建abi
+            | File
       mu-list-item(v-if='creating')
         mu-list-item-action
           mu-text-field(v-model='filename' placeholder="请输入文件名" @change="createFile")
       mu-list-item(v-for="(file,name) in $store.state.files" :key="name" button :value="name")
-        mu-list-item-action(v-if='selectedName==name')
-          mu-icon(value='create')
-        mu-list-item-title {{name}}
+        mu-list-item-title(:class='selectedName==name?"selected":""') {{name}}
         mu-list-item-action
           mu-button(@click='$store.commit("deleteFile",name);$forceUpdate();' icon)
             mu-icon(value='delete')
   mu-appbar.appbar
-    div(slot='left' class='mu-appbar-title') abi编辑器 {{selectedName?'-'+selectedName+'.abi':''}}
+    div(slot='left' class='mu-appbar-title') {{selectedName?selectedName+' - ':''}} Fibos智能合约测试
+    mu-button(slot='left' flat @click="deploy") 部署合约
+    mu-button(slot='left' flat @click="test") 运行测试 
+    mu-button(slot='right' flat to='config') 配置
   nuxt.content.appbar
 </template>
 <script>
+import FIBOS from "fibos.js";
 export default {
   data() {
     return {
       creating: false,
       filename: "",
-      selectedFile: null,
       selectedName: ""
     };
   },
+  watch: {
+    $route(to, from) {
+      switch (to.name) {
+        case "config":
+          this.selectFile();
+      }
+    }
+  },
   mounted() {
-    this.selectFile("default");
+    for (let filename in this.$store.state.files) {
+      this.selectFile(filename);
+      break;
+    }
   },
   methods: {
     createFile(value) {
       this.creating = false;
-      if (this.$store.state.files[value])
-        this.selectedFile = this.$store.state.files[value];
-      else {
-        let newFile = {
-          version: "eosio::abi/1.0",
-          types: [],
-          structs: [],
-          actions: [],
-          tables: []
-        };
+      if (this.$store.state.files[value]) {
+      } else {
+        let newFile = value.endsWith("json")
+          ? {
+              version: "eosio::abi/1.0",
+              types: [],
+              structs: [],
+              actions: [],
+              tables: []
+            }
+          : "";
         this.$store.commit("addFile", { [value]: newFile });
         this.selectFile(value);
       }
@@ -54,9 +67,39 @@ export default {
     },
     selectFile(name) {
       if (typeof name == "string") {
-        this.selectedFile = this.$store.state.files[name];
         this.selectedName = name;
-        this.$router.push({ name: "index", query: { filename: name } });
+        this.$router.push({
+          name: name.endsWith("json") ? "abi" : "index",
+          query: { filename: name }
+        });
+      } else {
+        this.selectedName = null;
+      }
+    },
+    async deploy() {
+      const client = this.$store.getters.currentFibos;
+      try {
+        const zip = await FIBOS.compileCode(
+          this.$store.getters.currentContract
+        );
+        await client.setcode(this.$store.state.contractAcc, 0, 0, zip);
+        await client.setabi(
+          this.$store.state.contractAcc,
+          this.$store.getters.currentABI
+        );
+        this.$toast.success("部署完成");
+      } catch (e) {
+        this.$toast.error(e.message || e);
+      }
+    },
+    async test() {
+      const client = this.$store.getters.currentFibos;
+      try {
+        const contract = await client.contract(this.$store.state.contractAcc);
+        const account = this.$store.state.currentAcc;
+        eval(this.$store.getters.currentTest);
+      } catch (e) {
+        this.$toast.error(e.message || e);
       }
     }
   }
@@ -72,5 +115,8 @@ export default {
 }
 .appbar {
   margin-left: 200px;
+}
+.selected {
+  font-weight: bold;
 }
 </style>
