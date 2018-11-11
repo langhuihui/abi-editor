@@ -89,7 +89,7 @@ export default {
         );
         this.$toast.success("部署完成");
       } catch (e) {
-        this.$toast.error(e.message || e);
+        this.$toast.error({ message: e.message || e, time: 10000 });
       }
     },
     async test() {
@@ -99,7 +99,7 @@ export default {
         const account = this.$store.state.currentAcc;
         eval(this.$store.getters.currentTest);
       } catch (e) {
-        this.$toast.error(e.message || e);
+        this.$toast.error({ message: e.message || e, time: 10000 });
       }
     }
   }

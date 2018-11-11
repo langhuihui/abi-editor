@@ -53,7 +53,7 @@ export default {
          ** You can extend webpack config here
          */
         extend(config, ctx) {
-            config.output.publicPath = "_nuxt/"
+            config.output.publicPath = "/abi-editor/dist/_nuxt/"
             config.plugins.push(
                 new MonacoWebpackPlugin()
             )

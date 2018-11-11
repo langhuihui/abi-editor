@@ -2,18 +2,24 @@
 mu-container
     mu-dialog(:open.sync='openNewType' title="新增type")
       mu-text-field(v-model='newType.new_type_name' label='new_type_name')
+      br
       mu-select(v-model='newType.type' label='type')
         mu-option(label='name' value='name')
       mu-button(@click='addNewType' color="primary"  slot="actions" ) 添加
       mu-button(@click='openNewType=false' slot="actions" ) 取消
     mu-dialog(:open.sync='openNewAction' title="新增action")
       mu-text-field(v-model='newAction.name' label='name')
+      br
       mu-text-field(v-model='newAction.type' label='type')
+      br
+      mu-text-field(v-model='newAction.ricardian_contract' label='ricardian_contract')
       mu-button(@click='addNewAction' color="primary"  slot="actions" ) 添加
       mu-button(@click='openNewAction=false' slot="actions" ) 取消
     mu-dialog(:open.sync='openNewTable' title="新增type")
       mu-text-field(v-model='newTable.name' label='name' )
+      br
       mu-text-field(v-model='newTable.type' label='type' )
+      br
       mu-text-field(v-model='newTable.index_type' label='index_type' )
       mu-button(@click='addNewTable' color="primary"  slot="actions" ) 添加
       mu-button(@click='openNewTable=false' slot="actions" ) 取消
